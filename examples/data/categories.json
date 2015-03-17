@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Mens",
+        "children": [
+            {"value": 1, "name": "Footwear"},
+            {"value": 2, "name": "Jeans"},
+            {"value": 3, "name": "Shirts"},
+            {"value": 4, "name": "Trousers"}
+        ]
+    },
+    {
+        "name": "Womens",
+        "children": [
+            {"value": 5, "name": "Dresses"},
+            {"value": 6, "name": "Jewelry"},
+            {"value": 7, "name": "Leggins"}
+        ]
+    },
+    {
+        "name": "Childrens",
+        "children": [
+            {"value": 8, "name": "Costumes"},
+            {"value": 9, "name": "Shorts"},
+            {"value": 10, "name": "Hats"}
+        ]
+    }
+]

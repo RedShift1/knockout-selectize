@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Selectize examples</title>
+    <link rel="stylesheet" href="../lib/selectize/dist/css/selectize.css">
+    <link rel="stylesheet" href="../lib/selectize/dist/css/selectize.bootstrap3.css">
+
+    <script data-main="amd" src="../lib/requirejs/require.js"></script>
+</head>
+<body>
+
+<h2>Using option groups</h2>
+<select multiple data-bind="selectize: {optgrouped: true, optgroupValues: 'children'},
+                    selectedOptions: value6, options: categories, selectizeSettings: {allowEmptyOption: true,
+                    labelField: 'name' }"></select>
+
+</body>
+</html>
