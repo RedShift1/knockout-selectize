@@ -1,0 +1,25 @@
+<div>
+	<template id="select_option_group">
+		<optgroup data-bind='attr: {label: data[params.selectizeSettings.optgroupLabelField]}, foreach: data[params.optgroupValues]'>
+			<!-- ko template: {name: 'select_option', data: {data: $data, params: $parent.params}} --><!-- /ko -->
+	    </optgroup>
+	</template>
+	<template id="select_option">
+		<option data-bind='text: data[params.selectizeSettings.labelField], value: data[params.selectizeSettings.valueField]'></option>
+	</template>
+	<!-- ko if: params.multiple === true -->
+		<select
+			multiple 
+	        data-bind="selectize: {optgrouped: params.optgrouped, optgroupValues: params.optgroupValues, options: params.options}, foreach: params.options, selectedOptions: params.value,
+	                selectizeSettings: params.selectizeSettings">
+		    <!-- ko template: {name: 'select_option_group', data: {data: $data, params: $parent.params}} --><!-- /ko -->
+		</select>
+	<!-- /ko -->
+	<!-- ko if: params.multiple !== true -->
+		<select
+		        data-bind="selectize: {optgrouped: params.optgrouped, optgroupValues: params.optgroupValues, options: params.options}, foreach: params.options, value: params.value,
+		                selectizeSettings: params.selectizeSettings">
+		    <!-- ko template: {name: 'select_option_group', data: {data: $data, params: $parent.params}} --><!-- /ko -->
+		</select>
+	<!-- /ko -->
+</div>

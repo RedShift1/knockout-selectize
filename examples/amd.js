@@ -2,13 +2,15 @@ requirejs.config({
     baseUrl: '../lib',
     paths: {
         examples: "../examples",
+        src: "../src",
 
         jquery: "jquery/dist/jquery",
-        knockout: "knockout/dist/knockout",
+        knockout: "knockout/dist/knockout.debug",
         "knockout-mapping": "../lib/bower-knockout-mapping/dist/knockout.mapping.min",
         "knockout-reactor": "../plugins/knockoutjs-reactor/knockout.reactor-beta",
-        "knockout-selectize": "../knockout-selectize",
+        "knockout-selectize": "../src/js/knockout-selectize",
         microplugin: "microplugin/src/microplugin",
+        text: "../lib/requirejs-text/text",
         "selectable-placeholder": "../plugins/selectablePlaceholder",
         selectize: "selectize/dist/js/selectize",
         sifter: "sifter/sifter.min"

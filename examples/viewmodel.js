@@ -13,6 +13,26 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
         this.categories = ko.observableArray();
         this.countries = ko.observableArray();
 
+        this.test = ko.observableArray([
+            {
+                "name": "Mens",
+                "children": [
+                    {"value": 1, "name": "Footwear"},
+                    {"value": 2, "name": "Jeans"},
+                    {"value": 3, "name": "Shirts"},
+                    {"value": 4, "name": "Trousers"}
+                ]
+            },
+            {
+                "name": "Womens",
+                "children": [
+                    {"value": 5, "name": "Dresses"},
+                    {"value": 6, "name": "Jewelry"},
+                    {"value": 7, "name": "Leggins"}
+                ]
+            }
+        ]);
+
         this.initializeData();
     }
 
@@ -28,21 +48,20 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
 
             $.when(this.getCategories(), this.getCountries()).then(function(categories, countries){
                 ko.mapping.fromJS(categories[0], {}, self.categories);
-                //self.countries(countries[0]);
+                self.countries(countries[0]);
 
-                self.value6([2, 3]);
-
-               setTimeout(function(){
-                   self.categories.remove(function(category){
-                       return category.name() === "Mens";
-                   });
-                   //self.value6(null);
-               }, 1000);
+                self.test.push({
+                    "name": "Childrens",
+                    "children": [
+                        {"value": 8, "name": "Dresses"},
+                        {"value": 9, "name": "Jewelry"},
+                        {"value": 10, "name": "Leggins"}
+                    ]
+                });
 
                 setTimeout(function(){
-                    //console.log(self.value6());
+                            console.log(self.value6());
                 }, 2000);
-
             });
         }
     }
