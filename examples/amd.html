@@ -11,11 +11,7 @@
 <body>
 
 <h2>Using option groups</h2>
-<selectize params="options: test, selectedOptions: value6, optgrouped: true, optionsValue: 'value', optionsText: 'name', selectizeSettings: {optgroupLabelField: 'name'}"></selectize>
-<div data-bind="foreach: value6">
-	<div>hej</div>
-</div>
-<!--<select multiple data-bind="selectize: {optgrouped: true}, options: test, selectedOptions: value6, optionsValue: 'value', optionsText: 'name', selectizeSettings: {}"></select>-->
+<selectize params="options: categories, optgrouped: true, multiple: true, value: value1, optionsValue: 'value', optionsText: 'name', selectizeSettings: {optgroupLabelField: 'name'}"></selectize>
 
 </body>
 </html>

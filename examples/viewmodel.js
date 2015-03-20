@@ -3,12 +3,12 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
     ko.mapping = knockoutMapping;
 
     var ExampleViewModel = function() {
-        this.value1 = ko.observable();
+        this.value1 = ko.observable("AF");
         this.value2 = ko.observableArray();
         this.value3 = ko.observable();
         this.value4 = ko.observableArray();
         this.value5 = ko.observable();
-        this.value6 = ko.observableArray();
+        this.value6 = ko.observableArray([6]);
 
         this.categories = ko.observableArray();
         this.countries = ko.observableArray();

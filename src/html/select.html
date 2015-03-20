@@ -1,25 +1,14 @@
-<div>
-	<template id="select_option_group">
-		<optgroup data-bind='attr: {label: data[params.selectizeSettings.optgroupLabelField]}, foreach: data[params.optgroupValues]'>
-			<!-- ko template: {name: 'select_option', data: {data: $data, params: $parent.params}} --><!-- /ko -->
+<!-- if white space is added it will count as an element rendered, and mess with the callback -->
+<template id="singleSelectize"><div data-bind="controlsDescendantBindings: {}">
+	<select>
+		<option data-bind='isOptionSelected: $parent.value, text: $data[$parent.selectizeSettings.labelField], option: $data[$parent.selectizeSettings.valueField]'></option>
+	</select>
+</div></template>
+<template id="optionGroupedSelectize"><div data-bind="controlsDescendantBindings: {}">
+	<select>
+		<optgroup data-bind='attr: {label: $data[$parent.selectizeSettings.optgroupLabelField]}, foreach: $data[$parent.optgroupValues]'>
+			<option data-bind='text: $data[$parents[1].selectizeSettings.labelField], option: $data[$parents[1].selectizeSettings.valueField], isOptionSelected: $parents[1].value'></option>
 	    </optgroup>
-	</template>
-	<template id="select_option">
-		<option data-bind='text: data[params.selectizeSettings.labelField], value: data[params.selectizeSettings.valueField]'></option>
-	</template>
-	<!-- ko if: params.multiple === true -->
-		<select
-			multiple 
-	        data-bind="selectize: {optgrouped: params.optgrouped, optgroupValues: params.optgroupValues, options: params.options}, foreach: params.options, selectedOptions: params.value,
-	                selectizeSettings: params.selectizeSettings">
-		    <!-- ko template: {name: 'select_option_group', data: {data: $data, params: $parent.params}} --><!-- /ko -->
-		</select>
-	<!-- /ko -->
-	<!-- ko if: params.multiple !== true -->
-		<select
-		        data-bind="selectize: {optgrouped: params.optgrouped, optgroupValues: params.optgroupValues, options: params.options}, foreach: params.options, value: params.value,
-		                selectizeSettings: params.selectizeSettings">
-		    <!-- ko template: {name: 'select_option_group', data: {data: $data, params: $parent.params}} --><!-- /ko -->
-		</select>
-	<!-- /ko -->
-</div>
+	</select>
+</div></template>
+<div data-bind="template: { name: params.optgrouped === true ? 'optionGroupedSelectize' : 'singleSelectize', data: $data, afterRender: initializeSelectizeBinding }"></div>

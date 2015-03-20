@@ -219,7 +219,6 @@
         if (ko.isObservable(options)) {
             // Use knockout reactor to watch for nested changes
             return ko.watch(options, {depth: 2, mutable: true}, function(parents, child, item){
-                console.log("item change", item);
                 // the change was not of array character
                 if (item === undefined) { return true; }
 
@@ -378,21 +377,14 @@
         // If selectize is a multiple, set the value to the appropriate
         // knockout.js binding
         var value = getValueObservable(el, allBindings);
-        if (isMultiple(el)) {
-            //ko.bindingHandlers["selectedOptions"].init(el[0], function() { return value }, allBindings);
-            //ko.bindingHandlers["selectedOptions"].update(el[0], function() { return value }, allBindings);
-        } else {
 
-        }
-
-        //return true;
         // Selectize.js bug https://github.com/brianreavis/selectize.js/issues/739
         // Still have to use selectable_placeholder
         if (allBindings.get("valueAllowUnset") === true) {
             selectizeSettings.allowEmptyOption = true;
             setSelectablePlaceholderOptions(el, selectizeSettings);
         }
-return true;
+
         el.selectize(selectizeSettings);
         var selectizeInstance = el[0].selectize;
 
@@ -424,6 +416,23 @@ return true;
         }
     };
 
+    ko.bindingHandlers.isOptionSelected = {
+        update: function(element, valueAccessor) {
+            var selectValue = ko.utils.unwrapObservable(valueAccessor());
+            var optionValue = $(element).attr("value");
+
+            if (selectValue == optionValue) {
+                $(element).prop("selected", true);
+            }
+        }
+    };
+
+    ko.bindingHandlers.controlsDescendantBindings = {
+        init: function() {
+            return { controlsDescendantBindings: true } 
+        }
+    }
+
     ko.components.register("selectize", {
         viewModel: function(params) {
             params.selectizeSettings = $.extend({
@@ -436,10 +445,45 @@ return true;
 
             this.params = $.extend({
                 options: ko.observableArray(),
+                value: params.value,
                 multiple: false,
                 optgrouped: false,
                 optgroupValues: "children"
             }, params);
+
+            var self = this;
+            this.initializeSelectizeBinding = function(elements) {
+                var select = $(elements[0]).find("select");
+
+                if (select.length === 0) {
+                    throw "No select element was found.";
+                }
+
+                var bindingString = "";
+                var saveValue = ko.unwrap(params.value);
+
+                if (params.multiple === true) {
+                    select[0].multiple = true;
+                    bindingString += "selectedOptions: value";
+                } else {
+                    bindingString += "value: value";
+                }
+
+                bindingString += ", foreach: options, selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options}, " +
+                                    "selectizeSettings: selectizeSettings";
+                                    
+                select.attr("data-bind", bindingString);
+
+                ko.applyBindings(self.params, select[0]);
+
+                /*
+                 * When options and value binding are rendered, value is being set to undefined
+                 * We therefore reset it after the bindings have been applied
+                 */
+                setTimeout(function(){
+                    params.value(saveValue);
+                });
+            }
         },
         template: selectHtml
     });
