@@ -22,7 +22,9 @@
   "dependencies": {
     "selectize": "~0.12.0",
     "knockout": "~3.3.0",
-    "requirejs-text": "~2.0.14"
+    "requirejs-text": "~2.0.14",
+    "bower-knockout-mapping": "~2.5.0",
+    "knockoutjs-reactor-bower": "*"
   },
   "devDependencies": {
     "requirejs": "~2.1.16",

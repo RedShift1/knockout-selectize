@@ -1,11 +1,11 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!src/html/select.html"],
+        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!knockout-selectize-html/select.html"],
             function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, text, selectHtml) {
             return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, text, selectHtml));
         });
     } else if (typeof exports === 'object') {
-        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!src/html/select.html"));
+        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!knockout-selectize-html/select.html"));
     } else {
         root.knockoutSelectize = factory(root.$, root.ko, root.ko.mapping, root.ko, root.Selectize, root.Selectize);
     }
@@ -218,7 +218,7 @@
     {
         if (ko.isObservable(options)) {
             // Use knockout reactor to watch for nested changes
-            return ko.watch(options, {depth: 2, mutable: true}, function(parents, child, item){
+            return ko.watch(options, {}, function(parents, child, item){
                 // the change was not of array character
                 if (item === undefined) { return true; }
 
@@ -467,6 +467,12 @@
                     bindingString += "selectedOptions: value";
                 } else {
                     bindingString += "value: value";
+                }
+
+                if (params.emptyValue !== undefined) {
+                    self.params.valueAllowUnset = true;
+                    self.params.selectizeSettings.placeholder = params.emptyValue;
+                    bindingString += ", valueAllowUnset: valueAllowUnset";
                 }
 
                 bindingString += ", foreach: options, selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options}, " +

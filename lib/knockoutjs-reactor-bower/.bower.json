@@ -1,0 +1,29 @@
+{
+  "name": "knockoutjs-reactor-bower",
+  "homepage": "https://github.com/esbenp/knockoutjs-reactor-bower",
+  "description": "A fork of knockoutjs-reactor for the bower repository with AMD support",
+  "keywords": [
+    "knockoutjs-reactor"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "knockout": "~3.3.0"
+  },
+  "_release": "058ed336a5",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "058ed336a567fb28bc139ee765a80bb9b44ac1f2"
+  },
+  "_source": "git://github.com/esbenp/knockoutjs-reactor-bower.git",
+  "_target": "*",
+  "_originalSource": "knockoutjs-reactor-bower",
+  "_direct": true
+}

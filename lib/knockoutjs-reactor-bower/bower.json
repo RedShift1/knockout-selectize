@@ -1,0 +1,20 @@
+{
+  "name": "knockoutjs-reactor-bower",
+  "version": "0.0.0",
+  "homepage": "https://github.com/esbenp/knockoutjs-reactor-bower",
+  "description": "A fork of knockoutjs-reactor for the bower repository with AMD support",
+  "keywords": [
+    "knockoutjs-reactor"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "knockout": "~3.3.0"
+  }
+}
