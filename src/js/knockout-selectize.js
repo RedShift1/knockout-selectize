@@ -21,15 +21,17 @@
      * @param selectizeInstance
      * @param optgroup
      * @param selectizeSettings
+     * @param settings
      * @returns {*}
      */
-    var addOptgroup = function(selectizeInstance, optgroup, selectizeSettings)
+    var addOptgroup = function(selectizeInstance, optgroup, selectizeSettings, settings)
     {
         var value = optgroup[selectizeSettings.optgroupValueField];
         var label = optgroup[selectizeSettings.optgroupLabelField];
 
         selectizeInstance.addOptionGroup(value, {
-            label: label
+            "label": label, 
+            "$order": optgroup[settings["optgroupSort"]]
         });
 
         return value;
@@ -232,7 +234,7 @@
                 // optgroup change
                 if (settings.optgrouped === true && parents.length === 0) {
                     if (item.status === "added") {
-                        var optgroupId = addOptgroup(selectizeInstance, item.value, selectizeSettings);
+                        var optgroupId = addOptgroup(selectizeInstance, item.value, selectizeSettings, settings);
                         addOptions(selectizeInstance, item.value[settings.optgroupValues], selectizeSettings, optgroupId);
                     } else if (item.status === "deleted") {
                         var optgroup = item.value[selectizeSettings.optgroupValueField];
@@ -350,6 +352,23 @@
         }
     }
 
+    var sortOptgroups = function(optgroups, optgroupSort) 
+    {
+        var unwrapped = ko.unwrap(optgroups);
+        if (optgroupSort instanceof Function) {
+            unwrapped.sort(optgroupSort);
+        } else {
+            unwrapped.sort(function(a, b){
+                var aUnwrapped = ko.unwrap(a[optgroupSort]);
+                var bUnwrapped = ko.unwrap(b[optgroupSort]);
+
+                return aUnwrapped - bUnwrapped;
+            });
+        }
+
+        optgroups(unwrapped);
+    }
+
     /**
      * Initialize the field and setup susbscribers
      *
@@ -453,7 +472,8 @@
                 value: params.value,
                 multiple: false,
                 optgrouped: false,
-                optgroupValues: "children"
+                optgroupValues: "children",
+                optgroupSort: false
             }, params);
 
             var self = this;
@@ -480,7 +500,13 @@
                     bindingString += ", valueAllowUnset: valueAllowUnset";
                 }
 
-                bindingString += ", foreach: options, selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options}, " +
+                if (params.optgrouped === true && params.optgroupSort !== false) {
+                    self.params.selectizeSettings.lockOptgroupOrder = true;
+                    sortOptgroups(params.options, params.optgroupSort);
+                }
+
+                bindingString += ", foreach: options, " + 
+                                    "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort}, " +
                                     "selectizeSettings: selectizeSettings";
                                     
                 select.attr("data-bind", bindingString);

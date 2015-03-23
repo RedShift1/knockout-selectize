@@ -3,8 +3,7 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
     ko.mapping = knockoutMapping;
 
     var ExampleViewModel = function() {
-        this.tester = ko.observable("Placehlder");
-        this.value1 = ko.observable();
+        this.options = ko.observableArray();
 
         this.categories = ko.observableArray();
         this.countries = ko.observableArray();
@@ -25,6 +24,7 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
             $.when(this.getCategories(), this.getCountries()).then(function(categories, countries){
                 setTimeout(function(){
 ko.mapping.fromJS(categories[0], {}, self.categories);
+self.options();
 }, 1500);
                 
                 self.countries(countries[0]);
