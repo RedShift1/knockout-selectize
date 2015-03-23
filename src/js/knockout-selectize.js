@@ -374,6 +374,11 @@
         };
         var selectizeSettings = allBindings.get("selectizeSettings") || {};
 
+        // Placeholder is existing and is an observable
+        if (typeof selectizeSettings.placeholder !== "undefined" && selectizeSettings.placeholder instanceof Function) {
+            selectizeSettings.placeholder = ko.unwrap(selectizeSettings.placeholder);
+        }
+
         // If selectize is a multiple, set the value to the appropriate
         // knockout.js binding
         var value = getValueObservable(el, allBindings);

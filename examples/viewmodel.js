@@ -3,6 +3,7 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
     ko.mapping = knockoutMapping;
 
     var ExampleViewModel = function() {
+        this.tester = ko.observable("Placehlder");
         this.value1 = ko.observable();
 
         this.categories = ko.observableArray();
