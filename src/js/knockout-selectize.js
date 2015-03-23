@@ -472,6 +472,8 @@
                 value: params.value,
                 multiple: false,
                 optgrouped: false,
+                optgroupLabel: params.selectizeSettings.optgroupLabelField,
+                optgroupValue: params.selectizeSettings.optgroupValueField,
                 optgroupValues: "children",
                 optgroupSort: false
             }, params);
@@ -501,8 +503,14 @@
                 }
 
                 if (params.optgrouped === true && params.optgroupSort !== false) {
+                    // Allow for optgroups to be sorted by the order parameter
                     self.params.selectizeSettings.lockOptgroupOrder = true;
+                    // Sort at first, so that initial optgroups are sorted
                     sortOptgroups(params.options, params.optgroupSort);
+
+                    // Give users an easier understanding of the settings, see issue #2
+                    this.params.selectizeSettings.optgroupLabelField = this.params.optgroupLabel;
+                    this.params.selectizeSettings.optgroupValueField = this.params.optgroupValue;
                 }
 
                 bindingString += ", foreach: options, " + 
