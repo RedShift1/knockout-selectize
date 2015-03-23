@@ -509,8 +509,8 @@
                     sortOptgroups(params.options, params.optgroupSort);
 
                     // Give users an easier understanding of the settings, see issue #2
-                    this.params.selectizeSettings.optgroupLabelField = this.params.optgroupLabel;
-                    this.params.selectizeSettings.optgroupValueField = this.params.optgroupValue;
+                    self.params.selectizeSettings.optgroupLabelField = self.params.optgroupLabel;
+                    self.params.selectizeSettings.optgroupValueField = self.params.optgroupValue;
                 }
 
                 bindingString += ", foreach: options, " + 
