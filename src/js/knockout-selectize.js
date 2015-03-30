@@ -274,7 +274,12 @@
                 }
 
                 for(var i in additions) {
-                    addOption(selectizeInstance, ko.mapping.toJS(additions[i]), optgroup);
+                    // Cannot just do ko.mapping as this will ignore computed observables.
+                    var addObject = {};
+                    addObject[selectizeSettings.valueField] = ko.unwrap(additions[i][selectizeSettings.valueField]);
+                    addObject[selectizeSettings.labelField] = ko.unwrap(additions[i][selectizeSettings.labelField]);
+
+                    addOption(selectizeInstance, addObject, optgroup);
                 }
             });
         }
@@ -441,6 +446,25 @@
             setupValueSubscriber(selectizeInstance, value, subscriptionsManager);
         }
 
+        /* If the value is given to the select box before options (i.e. options loaded async) then the select
+         * behavior will by default set the value observable to undefined. Therefore we save the initial value
+         * and subscribe to the options observable to know when the initial options are loaded so we can
+         * reset the value observable to the original value.
+         * It is important this subscription is set after the options subscription, otherwise the options will
+         * not be added to selectize before the value is reset
+         */
+        var optionsUnwrapped = ko.unwrap(options);
+        var optionsFilled = optionsUnwrapped.length > 0;
+        var saveValue = settings.saveValue;
+
+        if (optionsFilled === false) {
+            subscriptionsManager.addSubscription(options.subscribe(function(){
+                optionsFilled = true;
+                value(saveValue);
+                subscriptionsManager.dispose("optionsFilledSubscription");
+            }), "optionsFilledSubscription");
+        }
+
         // Clean up
         ko.utils.domNodeDisposal.addDisposeCallback(el, function() {
             // destroy the selectize.js instance
@@ -511,7 +535,7 @@
                 }
 
                 var bindingString = "";
-                var saveValue = ko.unwrap(params.value);
+                self.params.saveValue = ko.unwrap(params.value);
 
                 if (params.multiple === true) {
                     select[0].multiple = true;
@@ -538,20 +562,12 @@
                 }
 
                 bindingString += ", foreach: options, disable: disable, " + 
-                                    "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort}, " +
-                                    "selectizeSettings: selectizeSettings";
+                                    "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort, " +
+                                    "saveValue: saveValue}, selectizeSettings: selectizeSettings";
                                     
                 select.attr("data-bind", bindingString);
 
                 ko.applyBindings(self.params, select[0]);
-
-                /*
-                 * When options and value binding are rendered, value is being set to undefined
-                 * We therefore reset it after the bindings have been applied
-                 */
-                setTimeout(function(){
-                    params.value(saveValue);
-                });
             }
         },
         template: selectHtml

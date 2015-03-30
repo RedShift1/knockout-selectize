@@ -3,16 +3,14 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
     ko.mapping = knockoutMapping;
 
     var ExampleViewModel = function() {
-        this.options1 = ko.observableArray([
-            {id: 1, name: "Option 1"},
-            {id: 2, name: "Option 2"}
-        ]);
+        this.options1 = ko.observableArray();
         this.options2 = ko.computed(function(){
             return this.options1();
         }, this);
+        this.label = ko.observable("YSSSO");
         this.options3 = ko.observableArray([
             {label: "Optgroup 1", order: 1, children: ko.observableArray([
-                {id: 3, name: "Option 3"}
+                {id: 3, name: ko.computed(function(){return this.label()}, this)}
             ])},
             {label: "Optgroup 2", order: 0, children: ko.observableArray([
                 {id: 4, name: "Option4"}
@@ -22,10 +20,13 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
             return this.options3();
         }, this);
         this.disable = ko.observable(true);
-
-        var self = this;
+var self = this;
         setTimeout(function(){
-            self.options1.remove(function(entry){
+            self.options1([
+            {id: 1, name: "Option 1"},
+            {id: 2, name: "Option 2"}
+        ]);
+            /*self.options1.remove(function(entry){
                 return entry.id === 1;
             });
             self.disable(false);
@@ -37,14 +38,15 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
             self.options3()[0].children.remove(function(entry){
                 return entry.id === 5;
             });
-            self.value4(3);
+            self.value4(3);*/
         }, 500);
 
-        this.value1 = ko.observableArray([1, 2]);
+        this.value1 = ko.observable();
         this.value2 = ko.observable();
         this.value3 = ko.observable();
         this.value4 = ko.observable();
-
+this.value1(1);
+        
         this.categories = ko.observableArray();
         this.countries = ko.observableArray();
 
