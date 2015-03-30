@@ -1,15 +1,18 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!knockout-selectize-html/select.html"],
-            function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, text, selectHtml) {
-            return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, text, selectHtml));
+        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", 
+                    "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"],
+            function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, changeSubscriber, subscriptionsManager, text, selectHtml) {
+            return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, 
+                                                        changeSubscriber, subscriptionsManager, text, selectHtml));
         });
     } else if (typeof exports === 'object') {
-        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", "text", "text!knockout-selectize-html/select.html"));
+        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", 
+                                            "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"));
     } else {
-        root.knockoutSelectize = factory(root.$, root.ko, root.ko.mapping, root.ko, root.Selectize, root.Selectize);
+        root.knockoutSelectize = factory(root.$, root.ko, root.ko.mapping, root.ko, root.Selectize, root.Selectize, root.ChangeSubscriber, root.SubscriptionsManager);
     }
-}(this, function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, text, selectHtml) {
+}(this, function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, ChangeSubscriber, SubscriptionsManager, text, selectHtml) {
 
     if (ko.mapping === undefined) {
         ko.mapping = knockoutMapping;
@@ -42,10 +45,9 @@
      *
      * @param selectizeInstance
      * @param option
-     * @param selectizeSettings
      * @param optgroup
      */
-    var addOption = function(selectizeInstance, option, selectizeSettings, optgroup)
+    var addOption = function(selectizeInstance, option, optgroup)
     {
         if (optgroup !== undefined) {
             option.optgroup = optgroup;
@@ -59,13 +61,12 @@
      *
      * @param selectizeInstance
      * @param options
-     * @param selectizeSettings
      * @param optgroup
      */
-    var addOptions = function(selectizeInstance, options, selectizeSettings, optgroup)
+    var addOptions = function(selectizeInstance, options, optgroup)
     {
         for(var i in options) {
-            addOption(selectizeInstance, options[i], selectizeSettings, optgroup);
+            addOption(selectizeInstance, options[i], optgroup);
         }
     }
 
@@ -207,6 +208,12 @@
         }
     }
 
+    var setupOptgroupSubscriber = function(selectizeInstance, options)
+    {
+
+        return false;
+    }
+
     /**
      * Setup a subscriber looking for changes in the options observable
      *
@@ -216,39 +223,43 @@
      * @param settings
      * @returns {*}
      */
-    var setupOptionsSubscriber = function(selectizeInstance, options, selectizeSettings, settings)
+    var setupOptionsSubscriber = function(selectizeInstance, options, selectizeSettings, settings, subscriptionsManager)
+    {
+        if (settings.optgrouped === true) {
+            // Subscribe to optgroups
+            // Foreach optgroup, subscribe to children
+            subscriptionsManager.addSubscriptions(setupOptgroupSubscriber(selectizeInstance, options));
+
+            var unwrapped = ko.unwrap(options);
+            if (!(unwrapped instanceof Array)) {
+                throw Error("Optgroup array is not an array.");
+            }
+
+            for(var i in unwrapped) {
+                var optgroup = unwrapped[i];
+                var childrensArray = optgroup[settings.optgroupValues];
+                var label = optgroup[selectizeSettings.optgroupLabelField];
+
+                subscriptionsManager.addSubscriptions(setupSingleOptionsSubscriber(selectizeInstance, childrensArray, selectizeSettings, label));
+            }
+        } else {
+            subscriptionsManager.addSubscriptions(setupSingleOptionsSubscriber(selectizeInstance, options, selectizeSettings));
+        }
+
+        return true;
+    }
+
+    var setupSingleOptionsSubscriber = function(selectizeInstance, options, selectizeSettings, optgroup)
     {
         if (ko.isObservable(options)) {
-            // Use knockout reactor to watch for nested changes
-            return ko.watch(options, {}, function(parents, child, item){
-                // the change was not of array character
-                if (item === undefined) { return true; }
-
-                // unwrap recursively
-                item = ko.mapping.toJS(item);
-
-                if (item.status !== "added" && item.status !== "deleted") {
-                    throw "An invalid change status was given.";
+            return options.changeSubscriber(function(additions, deletions){
+                for(var i in deletions) {
+                    var value = ko.unwrap(deletions[i][selectizeSettings["valueField"]]);
+                    removeOption(selectizeInstance, value);
                 }
 
-                // optgroup change
-                if (settings.optgrouped === true && parents.length === 0) {
-                    if (item.status === "added") {
-                        var optgroupId = addOptgroup(selectizeInstance, item.value, selectizeSettings, settings);
-                        addOptions(selectizeInstance, item.value[settings.optgroupValues], selectizeSettings, optgroupId);
-                    } else if (item.status === "deleted") {
-                        var optgroup = item.value[selectizeSettings.optgroupValueField];
-
-                        removeOptgroupOptions(selectizeInstance, optgroup);
-                        removeOptgroup(selectizeInstance, optgroup);
-                    }
-                // single option change
-                } else {
-                    if (item.status === "added") {
-                        addOption(selectizeInstance, item.value, selectizeSettings);
-                    } else {
-                        removeOption(selectizeInstance, item.value[selectizeSettings.valueField]);
-                    }
+                for(var i in additions) {
+                    addOption(selectizeInstance, ko.mapping.toJS(additions[i]), optgroup);
                 }
             });
         }
@@ -340,15 +351,15 @@
      * @param value
      * @returns {*}
      */
-    var setupValueSubscriber = function(selectizeInstance, value)
+    var setupValueSubscriber = function(selectizeInstance, value, subscriptionsManager)
     {
         // check if multiple
         var multiple = isMultiple(selectizeInstance.$input);
 
         if (multiple) {
-            return setupMultipleValueSubscriber(selectizeInstance, value);
+            subscriptionsManager.addSubscription(setupMultipleValueSubscriber(selectizeInstance, value));
         } else {
-            return setupSingleValueSubscriber(selectizeInstance, value);
+            subscriptionsManager.addSubscription(setupSingleValueSubscriber(selectizeInstance, value));
         }
     }
 
@@ -365,8 +376,6 @@
                 return aUnwrapped - bUnwrapped;
             });
         }
-
-        optgroups(unwrapped);
     }
 
     /**
@@ -387,10 +396,7 @@
         // Override default options with options given by the valueAccessor
         var settings = valueAccessor();
         var options = settings.options;
-        var subscriptions = {
-            options: false,
-            value: false
-        };
+        var subscriptionsManager = new SubscriptionsManager();
         var selectizeSettings = allBindings.get("selectizeSettings") || {};
 
         // Placeholder is existing and is an observable
@@ -413,8 +419,10 @@
         var selectizeInstance = el[0].selectize;
 
         // Setup the subscribers
-        subscriptions.options = setupOptionsSubscriber(selectizeInstance, options, selectizeSettings, settings);
-        subscriptions.value   = setupValueSubscriber(selectizeInstance, value);
+        setupOptionsSubscriber(selectizeInstance, options, selectizeSettings, settings, subscriptionsManager);
+        if (ko.isObservable(value)) {
+            setupValueSubscriber(selectizeInstance, value, subscriptionsManager);
+        }
 
         // Clean up
         ko.utils.domNodeDisposal.addDisposeCallback(el, function() {
@@ -422,9 +430,7 @@
             selectizeInstance.destroy();
 
             // dispose of all subscriptions to prevent memory leaks
-            for(var i in subscriptions) {
-                subscriptions[i].dispose();
-            }
+            subscriptionsManager.disposeAll();
         });
     };
 
