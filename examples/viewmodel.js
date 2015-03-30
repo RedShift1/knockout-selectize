@@ -21,12 +21,14 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
         this.options4 = ko.computed(function(){
             return this.options3();
         }, this);
+        this.disable = ko.observable(true);
 
         var self = this;
         setTimeout(function(){
             self.options1.remove(function(entry){
                 return entry.id === 1;
             });
+            self.disable(false);
             self.options1.push({id: 3, name: ko.observable("Options 3")});
             self.options3.push({label: "Optgroup 2", children: [
                 {id: 4, name: "Option 4"}

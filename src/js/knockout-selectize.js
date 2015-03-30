@@ -183,6 +183,21 @@
         }
     }
 
+    var setupDisableSubscriber = function setupDisableSubscriber(selectizeInstance, disable)
+    {
+        if (ko.isObservable(disable)) {
+            return disable.subscribe(function(newValue){
+                if (newValue === true) {
+                    selectizeInstance.disable();
+                } else {
+                    selectizeInstance.enable();
+                }
+            });
+        }
+
+        return false;
+    }
+
     /**
      * Fallback for selectable placeholder. If there is a empty option
      * in the field, use its text as a selectable placeholder.
@@ -418,6 +433,8 @@
         el.selectize(selectizeSettings);
         var selectizeInstance = el[0].selectize;
 
+        subscriptionsManager.addSubscriptions(setupDisableSubscriber(selectizeInstance, allBindings.get("disable")));
+
         // Setup the subscribers
         setupOptionsSubscriber(selectizeInstance, options, selectizeSettings, settings, subscriptionsManager);
         if (ko.isObservable(value)) {
@@ -474,6 +491,7 @@
             }, params.selectizeSettings || {});
 
             this.params = $.extend({
+                disable: ko.observable(false),
                 options: ko.observableArray(),
                 value: params.value,
                 multiple: false,
@@ -519,7 +537,7 @@
                     self.params.selectizeSettings.optgroupValueField = self.params.optgroupValue;
                 }
 
-                bindingString += ", foreach: options, " + 
+                bindingString += ", foreach: options, disable: disable, " + 
                                     "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort}, " +
                                     "selectizeSettings: selectizeSettings";
                                     
