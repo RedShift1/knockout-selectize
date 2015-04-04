@@ -533,7 +533,8 @@
                 optgroupLabel: params.selectizeSettings.optgroupLabelField,
                 optgroupValue: params.selectizeSettings.optgroupValueField,
                 optgroupValues: "children",
-                optgroupSort: false
+                optgroupSort: false,
+                bindings: {}
             }, params);
 
             var self = this;
@@ -574,6 +575,18 @@
                 bindingString += ", foreach: options, disable: disable, " + 
                                     "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort, " +
                                     "saveValue: saveValue}, selectizeSettings: selectizeSettings";
+
+                // Transfer other non-selectize bindings to the select element
+                // Copy the bindings and remove the property from the values
+                var otherBindings = $.extend({}, this.params.bindings);
+                this.params.bindings = undefined;
+
+                // Add the other bindings to the binding string and 
+                // "inline" the values with the other parameters
+                for(var i in otherBindings){
+                    bindingString += ", " + i + ": " + i;
+                    this.params[i] = otherBindings[i];
+                }
                                     
                 select.attr("data-bind", bindingString);
 
