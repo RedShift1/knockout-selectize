@@ -98,6 +98,16 @@
         return el.prop("multiple");
     }
 
+    var getObjectPropertyOrString = function getObjectPropertyOrString(objectOrString, property)
+    {
+        if (typeof objectOrString === "object") {
+            return ko.unwrap(objectOrString[property]);
+        // Value is a string
+        } else {
+            return objectOrString;
+        }
+    }
+
     /**
      * Get the right value binding depending on whether
      * or not the element is a multiple box
@@ -269,15 +279,15 @@
         if (ko.isObservable(options)) {
             return options.changeSubscriber(function(additions, deletions){
                 for(var i in deletions) {
-                    var value = ko.unwrap(deletions[i][selectizeSettings["valueField"]]);
+                    var value = getObjectPropertyOrString(deletions[i], selectizeSettings["valueField"]);
                     removeOption(selectizeInstance, value);
                 }
 
                 for(var i in additions) {
                     // Cannot just do ko.mapping as this will ignore computed observables.
                     var addObject = {};
-                    addObject[selectizeSettings.valueField] = ko.unwrap(additions[i][selectizeSettings.valueField]);
-                    addObject[selectizeSettings.labelField] = ko.unwrap(additions[i][selectizeSettings.labelField]);
+                    addObject[selectizeSettings.valueField] = getObjectPropertyOrString(additions[i], selectizeSettings["valueField"]);
+                    addObject[selectizeSettings.labelField] = getObjectPropertyOrString(additions[i], selectizeSettings["labelField"]);
 
                     addOption(selectizeInstance, addObject, optgroup);
                 }

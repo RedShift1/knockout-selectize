@@ -1,7 +1,8 @@
 <!-- if white space is added it will count as an element rendered, and mess with the callback -->
 <template id="singleSelectize"><div data-bind="controlsDescendantBindings: {}">
 	<select>
-		<option data-bind='isOptionSelected: $parent.value, text: $data[$parent.selectizeSettings.labelField], option: $data[$parent.selectizeSettings.valueField]'></option>
+		<option data-bind='isOptionSelected: $parent.value, text: typeof $data === "object" ? $data[$parent.selectizeSettings.labelField] : $data, 
+                            option: typeof $data === "object" ? $data[$parent.selectizeSettings.valueField] : $data'></option>
 	</select>
 </div></template>
 <template id="optionGroupedSelectize"><div data-bind="controlsDescendantBindings: {}">

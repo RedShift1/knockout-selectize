@@ -3,50 +3,15 @@ define(["jquery", "knockout", "selectize", "knockout-selectize", "knockout-mappi
     ko.mapping = knockoutMapping;
 
     var ExampleViewModel = function() {
-        this.options1 = ko.observableArray();
-        this.options2 = ko.computed(function(){
-            return this.options1();
-        }, this);
-        this.label = ko.observable("YSSSO");
-        this.options3 = ko.observableArray([
-            {label: "Optgroup 1", order: 1, children: ko.observableArray([
-                {id: 3, name: ko.computed(function(){return this.label()}, this)}
-            ])},
-            {label: "Optgroup 2", order: 0, children: ko.observableArray([
-                {id: 4, name: "Option4"}
-            ])}
-        ]);
-        this.options4 = ko.computed(function(){
-            return this.options3();
-        }, this);
-        this.disable = ko.observable(true);
-var self = this;
-        setTimeout(function(){
-            self.options1([
-            {id: 1, name: "Option 1"},
-            {id: 2, name: "Option 2"}
-        ]);
-            /*self.options1.remove(function(entry){
-                return entry.id === 1;
-            });
-            self.disable(false);
-            self.options1.push({id: 3, name: ko.observable("Options 3")});
-            self.options3.push({label: "Optgroup 2", children: [
-                {id: 4, name: "Option 4"}
-            ]});
-            self.options3()[0].children.push({id: 5, name: "Option 5"});
-            self.options3()[0].children.remove(function(entry){
-                return entry.id === 5;
-            });
-            self.value4(3);*/
-        }, 500);
+        this.options = ko.observableArray(["Option 1", "Option 2", "Option 3"]);
+        this.values = ko.observableArray(["Option 1", "Option 2"]);
 
-        this.value1 = ko.observable();
-        this.value2 = ko.observable();
-        this.value3 = ko.observable();
-        this.value4 = ko.observable();
-this.value1(1);
-        
+        var self = this;
+        setTimeout(function(){
+            self.options.push("Option 4");
+            self.values.push("Option 4");
+        }, 1000);
+
         this.categories = ko.observableArray();
         this.countries = ko.observableArray();
 
