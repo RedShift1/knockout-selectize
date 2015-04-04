@@ -1,6 +1,6 @@
 {
   "name": "knockout-selectize",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "homepage": "https://github.com/esbenp/knockout-selectize",
   "description": "A knockout.js binding for selectize.js",
   "main": "knockout.selectize.js",
@@ -25,8 +25,8 @@
     "requirejs-text": "~2.0.14",
     "bower-knockout-mapping": "~2.5.0",
     "knockoutjs-reactor-bower": "*",
-    "knockout-subscriptions-manager": "~0.2.4",
-    "knockout-change-subscriber": "~0.1.2"
+    "knockout-subscriptions-manager": "*",
+    "knockout-change-subscriber": "*"
   },
   "devDependencies": {
     "requirejs": "~2.1.16",
