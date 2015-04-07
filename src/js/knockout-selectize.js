@@ -524,6 +524,10 @@
                 valueField: params.optionsValue || "value"
             }, params.selectizeSettings || {});
 
+            if (params.selectizeSettings["searchField"] === undefined) {
+                params.selectizeSettings["searchField"] = [params.labelField];
+            }
+
             this.params = $.extend({
                 disable: ko.observable(false),
                 options: ko.observableArray(),
