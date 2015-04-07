@@ -578,16 +578,16 @@
 
                 // Transfer other non-selectize bindings to the select element
                 // Copy the bindings and remove the property from the values
-                var otherBindings = $.extend({}, this.params.bindings);
-                this.params.bindings = undefined;
+                var otherBindings = $.extend({}, self.params.bindings);
+                self.params.bindings = undefined;
 
                 // Add the other bindings to the binding string and 
                 // "inline" the values with the other parameters
                 for(var i in otherBindings){
                     bindingString += ", " + i + ": " + i;
-                    this.params[i] = otherBindings[i];
+                    self.params[i] = otherBindings[i];
                 }
-                                    
+                
                 select.attr("data-bind", bindingString);
 
                 ko.applyBindings(self.params, select[0]);
