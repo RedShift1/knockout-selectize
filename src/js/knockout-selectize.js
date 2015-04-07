@@ -525,7 +525,7 @@
             }, params.selectizeSettings || {});
 
             if (params.selectizeSettings["searchField"] === undefined) {
-                params.selectizeSettings["searchField"] = [params.labelField];
+                params.selectizeSettings["searchField"] = [params.selectizeSettings.labelField];
             }
 
             this.params = $.extend({
@@ -593,7 +593,7 @@
                 }
                 
                 select.attr("data-bind", bindingString);
-
+console.log(self.params);
                 ko.applyBindings(self.params, select[0]);
             }
         },
