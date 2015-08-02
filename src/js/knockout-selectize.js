@@ -1,13 +1,13 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", 
+        define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder",
                     "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"],
             function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, changeSubscriber, subscriptionsManager, text, selectHtml) {
-            return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, 
+            return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder,
                                                         changeSubscriber, subscriptionsManager, text, selectHtml));
         });
     } else if (typeof exports === 'object') {
-        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder", 
+        module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder",
                                             "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"));
     } else {
         root.knockoutSelectize = factory(root.$, root.ko, root.ko.mapping, root.ko, root.Selectize, root.Selectize, root.ChangeSubscriber, root.SubscriptionsManager);
@@ -33,7 +33,7 @@
         var label = optgroup[selectizeSettings.optgroupLabelField];
 
         selectizeInstance.addOptionGroup(value, {
-            "label": label, 
+            "label": label,
             "$order": optgroup[settings["optgroupSort"]]
         });
 
@@ -393,7 +393,7 @@
         }
     }
 
-    var sortOptgroups = function(optgroups, optgroupSort) 
+    var sortOptgroups = function(optgroups, optgroupSort)
     {
         var unwrapped = ko.unwrap(optgroups);
         if (optgroupSort instanceof Function) {
@@ -510,18 +510,18 @@
 
     ko.bindingHandlers.controlsDescendantBindings = {
         init: function() {
-            return { controlsDescendantBindings: true } 
+            return { controlsDescendantBindings: true }
         }
     }
 
     ko.components.register("selectize", {
         viewModel: function(params) {
             params.selectizeSettings = $.extend({
-                labelField: params.optionsText || "text",
+                labelField: ko.unwrap(params.optionsText) || "text",
                 optgroupLabelField: "name",
                 optgroupValueField: "name",
                 plugins: [],
-                valueField: params.optionsValue || "value"
+                valueField: ko.unwrap(params.optionsValue) || "value"
             }, params.selectizeSettings || {});
 
             if (params.selectizeSettings["searchField"] === undefined) {
@@ -576,7 +576,7 @@
                     self.params.selectizeSettings.optgroupValueField = self.params.optgroupValue;
                 }
 
-                bindingString += ", foreach: options, disable: disable, " + 
+                bindingString += ", foreach: options, disable: disable, " +
                                     "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort, " +
                                     "saveValue: saveValue}, selectizeSettings: selectizeSettings";
 
@@ -585,15 +585,15 @@
                 var otherBindings = $.extend({}, self.params.bindings);
                 self.params.bindings = undefined;
 
-                // Add the other bindings to the binding string and 
+                // Add the other bindings to the binding string and
                 // "inline" the values with the other parameters
                 for(var i in otherBindings){
                     bindingString += ", " + i + ": " + i;
                     self.params[i] = otherBindings[i];
                 }
-                
+
                 select.attr("data-bind", bindingString);
-console.log(self.params);
+
                 ko.applyBindings(self.params, select[0]);
             }
         },
