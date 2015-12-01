@@ -1,18 +1,18 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(["jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder",
-                    "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"],
-            function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, changeSubscriber, subscriptionsManager, text, selectHtml) {
+                    "knockout-change-subscriber", "knockout-subscriptions-manager"],
+            function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, changeSubscriber, subscriptionsManager) {
             return (root.knockoutSelectize = factory($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder,
-                                                        changeSubscriber, subscriptionsManager, text, selectHtml));
+                                                        changeSubscriber, subscriptionsManager));
         });
     } else if (typeof exports === 'object') {
         module.exports = factory(require("jquery", "knockout", "knockout-mapping", "knockout-reactor", "selectize", "selectable-placeholder",
-                                            "knockout-change-subscriber", "knockout-subscriptions-manager", "text", "text!knockout-selectize-html/select.html"));
+                                            "knockout-change-subscriber", "knockout-subscriptions-manager"));
     } else {
         root.knockoutSelectize = factory(root.$, root.ko, root.ko.mapping, root.ko, root.Selectize, root.Selectize, root.ChangeSubscriber, root.SubscriptionsManager);
     }
-}(this, function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, ChangeSubscriber, SubscriptionsManager, text, selectHtml) {
+}(this, function ($, ko, knockoutMapping, knockoutReactor, Selectize, selectablePlaceholder, ChangeSubscriber, SubscriptionsManager) {
 
     if (ko.mapping === undefined) {
         ko.mapping = knockoutMapping;
@@ -514,8 +514,29 @@
         }
     }
 
+    var singleMarkup = '<select>' +
+      '<option data-bind=\'isOptionSelected: $parent.value, text: typeof $data === "object" ' +
+                          '? $data[$parent.selectizeSettings.labelField] : $data, ' +
+                          'option: typeof $data === "object" ? ' +
+                          '$data[$parent.selectizeSettings.valueField] : $data\'></option>' +
+    '</select>';
+
+    var optgroupMarkup = '<select>' +
+        '<optgroup data-bind=\'attr: {label: $data[$parent.selectizeSettings.optgroupLabelField]}, ' +
+              'foreach: $data[$parent.optgroupValues]\'>' +
+          '<option data-bind=\'text: $data[$parents[1].selectizeSettings.labelField], ' +
+              'option: $data[$parents[1].selectizeSettings.valueField], ' +
+              'isOptionSelected: $parents[1].value\'></option>' +
+        '</optgroup>' +
+    '</select>';
+
     ko.components.register("selectize", {
-        viewModel: function(params) {
+      template: '<div></div>',
+      viewModel: {
+        createViewModel: function(params, componentInfo) {
+
+          var viewmodel = function(elem, params) {
+
             params.selectizeSettings = $.extend({
                 labelField: ko.unwrap(params.optionsText) || "text",
                 optgroupLabelField: "name",
@@ -541,63 +562,74 @@
                 bindings: {}
             }, params);
 
-            var self = this;
-            this.initializeSelectizeBinding = function(elements) {
-                var select = $(elements[0]).find("select");
-
-                if (select.length === 0) {
-                    throw "No select element was found.";
-                }
-
-                var bindingString = "";
-                self.params.saveValue = ko.unwrap(params.value);
-
-                if (params.multiple === true) {
-                    select[0].multiple = true;
-                    bindingString += "selectedOptions: value";
-                } else {
-                    bindingString += "value: value";
-                }
-
-                if (params.emptyValue !== undefined) {
-                    self.params.valueAllowUnset = true;
-                    self.params.selectizeSettings.placeholder = params.emptyValue;
-                    bindingString += ", valueAllowUnset: valueAllowUnset";
-                }
-
-                if (params.optgrouped === true && params.optgroupSort !== false) {
-                    // Allow for optgroups to be sorted by the order parameter
-                    self.params.selectizeSettings.lockOptgroupOrder = true;
-                    // Sort at first, so that initial optgroups are sorted
-                    sortOptgroups(params.options, params.optgroupSort);
-
-                    // Give users an easier understanding of the settings, see issue #2
-                    self.params.selectizeSettings.optgroupLabelField = self.params.optgroupLabel;
-                    self.params.selectizeSettings.optgroupValueField = self.params.optgroupValue;
-                }
-
-                bindingString += ", foreach: options, disable: disable, " +
-                                    "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort, " +
-                                    "saveValue: saveValue}, selectizeSettings: selectizeSettings";
-
-                // Transfer other non-selectize bindings to the select element
-                // Copy the bindings and remove the property from the values
-                var otherBindings = $.extend({}, self.params.bindings);
-                self.params.bindings = undefined;
-
-                // Add the other bindings to the binding string and
-                // "inline" the values with the other parameters
-                for(var i in otherBindings){
-                    bindingString += ", " + i + ": " + i;
-                    self.params[i] = otherBindings[i];
-                }
-
-                select.attr("data-bind", bindingString);
-
-                ko.applyBindings(self.params, select[0]);
+            var markup;
+            if (!this.params.optgrouped){
+              markup = singleMarkup;
+            } else {
+              markup = optgroupMarkup;
             }
+            markup = '<div data-bind="controlsDescendantBindings: {}">' + markup + '</div>';
+
+            var container = $(markup);
+            var select = container.find('select');
+
+            if (select.length === 0) {
+                throw "No select element was found.";
+            }
+
+            var bindingString = "";
+            this.params.saveValue = ko.unwrap(params.value);
+
+            if (params.multiple === true) {
+                select[0].multiple = true;
+                bindingString += "selectedOptions: value";
+            } else {
+                bindingString += "value: value";
+            }
+
+            if (params.emptyValue !== undefined) {
+                this.params.valueAllowUnset = true;
+                this.params.selectizeSettings.placeholder = params.emptyValue;
+                bindingString += ", valueAllowUnset: valueAllowUnset";
+            }
+
+            if (params.optgrouped === true && params.optgroupSort !== false) {
+                // Allow for optgroups to be sorted by the order parameter
+                this.params.selectizeSettings.lockOptgroupOrder = true;
+                // Sort at first, so that initial optgroups are sorted
+                sortOptgroups(params.options, params.optgroupSort);
+
+                // Give users an easier understanding of the settings, see issue #2
+                this.params.selectizeSettings.optgroupLabelField = this.params.optgroupLabel;
+                this.params.selectizeSettings.optgroupValueField = this.params.optgroupValue;
+            }
+
+            bindingString += ", foreach: options, disable: disable, " +
+                                "selectize: {optgrouped: optgrouped, optgroupValues: optgroupValues, options: options, optgroupSort: optgroupSort, " +
+                                "saveValue: saveValue}, selectizeSettings: selectizeSettings";
+
+            // Transfer other non-selectize bindings to the select element
+            // Copy the bindings and remove the property from the values
+            var otherBindings = $.extend({}, this.params.bindings);
+            this.params.bindings = undefined;
+
+            // Add the other bindings to the binding string and
+            // "inline" the values with the other parameters
+            for(var i in otherBindings){
+                bindingString += ", " + i + ": " + i;
+                this.params[i] = otherBindings[i];
+            }
+
+            select.attr("data-bind", bindingString);
+
+            ko.applyBindings(this.params, select[0]);
+
+            container.appendTo($(elem).find('div'));
+          }
+
+          return new viewmodel(componentInfo.element, params);
         },
-        template: selectHtml
+      }
     });
 
 }));
