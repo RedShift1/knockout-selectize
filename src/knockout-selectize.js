@@ -476,7 +476,7 @@
         }
 
         // Clean up
-        ko.utils.domNodeDisposal.addDisposeCallback(el, function() {
+        ko.utils.domNodeDisposal.addDisposeCallback(el[0], function() {
             // destroy the selectize.js instance
             selectizeInstance.destroy();
 
